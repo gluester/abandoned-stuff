@@ -1,0 +1,130 @@
+# NEXUS Round
+# ! ! ! ! ! ! GitHub.Com/SkriptLang/Skript ! ! ! ! ! !
+
+options:
+	pre: &d[&5NEXUS&9 Rounds&d]&b →&9
+	prer: &c[&5NEXUS&7Rounds&c]&4 → &7
+	customVer: false # SET TO "true" if you changed the Skript in any way.
+	prePlain: [NEXUS Rounds] ->
+	# queueAuto: true - - - If you want the queue to be automatic, un-comment this.
+	# vvv Don't change!'
+	ver: 0.1
+	permB: nrounds
+
+function roundBegin():
+	loop all players:
+		set {_LP} to loop-player
+		if {queue::*} contains loop-player's uuid:
+			if size of {queue::*} >= 3:
+				set {curGame} to random element out of {gameList::*}
+				set {curGame} to {_curG}
+				wait 1 tick
+				broadcast "{@pre} Game of %{_curG}% starting!"
+				set {gameInProgress} to true
+				set {gameS} to now
+				add {_LP} to {plyrsInRound::*}
+				teleport {_LP} to {RSpawn.%{curGame}%}
+
+command /forcestartround:
+  permission: {@permB}.admin
+  trigger:
+    roundBegin()
+
+function roundEnd():
+	loop all players:
+		set {_LP} to loop-player
+		broadcast "{@pre} Game of %{curGame}% ended!"
+		set {gameInProgress} to false
+		set {gameE} to now
+		delete {queue::*}
+		log "{@prePlain} Game of %{curGame}% ended."
+		delete {plyrsInRound::*}
+		set {curGame} to "[] NONE []"
+		loop {spectators::*}:
+			set {_SP} to loop-value-2
+			make {_SP} visible
+			send "{@pre} No longer spectating! &o&7Like... The opposite of a ghost!&m Kind of.." to {_SP}
+			disable fly for {_SP}
+every 1 minute:
+	if {gameInProgres} is false:
+		broadcast "{@pre} /queue to enter the queue! Game won't start with under &l3&r&9 players!"
+
+every 5 seconds:
+	set {_diff} to difference between {gameS} and now
+	if {_diff} is less than 5 seconds:
+		roundEnd()
+
+command /queue:
+	permission: {@permB}.defaultPerm
+	trigger:
+		open virtual chest with size 1 named "&dQueue" to player
+		wait 3 ticks
+		format gui slot 0 of player with lime stained glass pane named "Enter Queue" to run:
+			add player's uuid to {queue::*}
+			send "{@pre} Entered Queue!"
+		wait 3 ticks
+		format gui slot 1 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 1 tick
+		format gui slot 2 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 1 tick
+		format gui slot 3 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 1 tick
+		format gui slot 4 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 1 tick
+		format gui slot 5 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 1 tick
+		format gui slot 6 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 1 tick
+		format gui slot 7 of player with purple stained glass pane named "&5<>&d<>&9<>"
+		wait 3 ticks
+		format gui slot 8 of player with red stained glass pane named "Exit Queue" to run:
+			remove player's uuid from {queue::*}
+			send "{@pre} Exited queue!"
+
+on load:
+	if {RfirstLoad} isn't set:
+		set {RfirstLoad} to false
+		broadcast "{@pre} First load! &oFor the systems' sake, a round will begin."
+		log "{@prePlain} First load!"
+		set {nexusRoundsExists} to "Yup"
+		roundBegin()
+
+command /roundsettings [<text>]:
+	permission: {@permB}.settings, {@permB}.admin
+	executable by: player
+	usage: [] /roundsettings [<game / minigame name>] []
+	trigger:
+		open virtual chest with size 1 named "&5Rounds" to player
+		format gui slot 0 of player with redstone dust named "&dCreate game &5%arg-1%" to run:
+			if {gameList::*} doesn't contain arg-1:
+				add arg-1 to {gameList::*}
+				send "{@pre} Created game!"
+		format gui slot 1 of player with blue stained glass pane
+		format gui slot 2 of player with egg named "&dSet spawn of &5%arg-1%" to run:
+			set {RSpawn.%arg-1%} to location of player
+			send "{@pre} Set the spawn for &1%arg-1%&9 to your location! &1(%location of player%)"
+
+command /spectate [<player>]:
+	permission: {@permB}.defaultPerm
+	permission message: {@prer} Insufficient permissions!
+	executable by: players
+	usage: [] /spectate <player-in-game> []
+	trigger:
+		if arg-1 is set:
+			if {plyrsInRound::*} contains arg-1:
+				send "{@pre} &o&7Spectating &l%arg-1%&r&o&7! (After this round, you'll stop spectating!"
+				make player invisible
+				teleport player to arg-1
+				enable fly for player
+				add player's uuid to {spectators::*}
+
+
+on death:
+	if {gameInProgress} is true:
+		set death message to "{@prer} R.I.P!&c %player% &7has died! They're &lno longer in the game&r&7!"
+		remove player from {plyrsInRoun::*}
+
+command /forcestopround:
+	permission: {@permB}.admin
+	trigger:
+		roundEnd()
