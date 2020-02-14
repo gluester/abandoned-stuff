@@ -51,7 +51,7 @@ every 1 minute:
 
 every 5 seconds:
 	set {_diff} to difference between {gameS} and now
-	if {_diff} is less than 5 seconds:
+	if {_diff} >= 5 minutes:
 		roundEnd()
 
 command /queue:
