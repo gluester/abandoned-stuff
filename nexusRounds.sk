@@ -33,7 +33,7 @@ command /forcestartround:
 function roundEnd():
 	loop all players:
 		set {_LP} to loop-player
-		broadcast "{@pre} Game of %{curGame}% ended!"
+		broadcast "{@pre} Game of &l%{curGame}%&r&9 ended!"
 		set {gameInProgress} to false
 		set {gameE} to now
 		delete {queue::*}
