@@ -19,7 +19,7 @@ function roundBegin():
 				set {curGame} to random element out of {gameList::*}
 				set {curGame} to {_curG}
 				wait 1 tick
-				broadcast "{@pre} Game of %{_curG}% starting!"
+				broadcast "{@pre} Game of &l%{_curG}%&r&9 starting!"
 				set {gameInProgress} to true
 				set {gameS} to now
 				add {_LP} to {plyrsInRound::*}
