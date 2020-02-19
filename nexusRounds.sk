@@ -1,5 +1,7 @@
 # NEXUS Round
-# ! ! ! ! ! ! GitHub.Com/SkriptLang/Skript ! ! ! ! ! !
+# ! ! ! ! ! ! GitHub.Com/SkriptLang/Skript <<< Skript itself ! ! ! ! ! !
+
+# {-} REQUIRES: Skript, (tested on 2.4.1) TuSKe (Unknown ver), skQuery (Unknown ver) (Possibly not), skRayFall (for scoreboard) (Unknown ver)
 
 options:
 	pre: &d[&5NEXUS&9 Rounds&d]&b →&9
@@ -10,7 +12,6 @@ options:
 	# vvv Don't change!'
 	ver: 0.1
 	permB: nrounds
-
 function roundBegin():
 	loop all players:
 		set {_LP} to loop-player
@@ -86,13 +87,13 @@ on load:
 		set {RfirstLoad} to false
 		broadcast "{@pre} First load! &oFor the systems' sake, a round will begin."
 		log "{@prePlain} First load!"
-		set {nexusRoundsExists} to "Yup"
+		set {nexusRoundsExists} to true
 		roundBegin()
 
 command /roundsettings [<text>]:
 	permission: {@permB}.settings, {@permB}.admin
 	executable by: player
-	usage: [] /roundsettings [<game / minigame name>] []
+	usage: [!] /roundsettings [<game / minigame name>] [!]
 	trigger:
 		open virtual chest with size 1 named "&5Rounds" to player
 		format gui slot 0 of player with redstone dust named "&dCreate game &5%arg-1%" to run:
@@ -108,10 +109,10 @@ command /spectate [<player>]:
 	permission: {@permB}.defaultPerm
 	permission message: {@prer} Insufficient permissions!
 	executable by: players
-	usage: [] /spectate <player-in-game> []
+	usage: [!] /spectate <player-in-game> [!]
 	trigger:
 		if arg-1 is set:
-			if {plyrsInRound::*} contains arg-1:
+			if {plyrsInRound::*} contains arg-1's uuid:
 				send "{@pre} &o&7Spectating &l%arg-1%&r&o&7! (After this round, you'll stop spectating!"
 				make player invisible
 				teleport player to arg-1
@@ -123,6 +124,21 @@ on death:
 	if {gameInProgress} is true:
 		set death message to "{@prer} R.I.P!&c %player% &7has died! They're &lno longer in the game&r&7!"
 		remove player from {plyrsInRoun::*}
+
+every 8 seconds: # warning: may flicker
+	loop all players:
+		set {_lp} to loop-player
+		wipe {_lp}'s sidebar
+		set name of sidebar of {_lp} to "&5NEXUS&d Rounds"
+		set score "&9ITEM: &d%{var}%" in sidebar of {_lp} to 3
+		set score "&9GAME IN PROGRESS: &d%{gameInProgess}%" in sidebar of {_lp} to 2
+		if {spectators::*} contains player's uuid:
+			set score "&9STATUS: &dSpectator" in sidebar of {_lp} to 1
+		else if {plyrsInRound::*} contains player's uuid:
+			set score "&9STATUS:&d Playing" in sidebar of {_lp} to 1
+		else:
+			set score "&9STATUS: &dUnknown/Dead" in sidebar of {_lp} to 1
+		set score "&bEXAMPLE.IP"
 
 command /forcestopround:
 	permission: {@permB}.admin
