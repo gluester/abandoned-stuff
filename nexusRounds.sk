@@ -123,7 +123,7 @@ command /spectate [<player>]:
 on death:
 	if {gameInProgress} is true:
 		set death message to "{@prer} R.I.P!&c %player% &7has died! They're &lno longer in the game&r&7!"
-		remove player from {plyrsInRoun::*}
+		remove player from {plyrsInRound::*}
 
 every 8 seconds: # warning: may flicker
 	loop all players:
