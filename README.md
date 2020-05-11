@@ -3,7 +3,7 @@ just stuff that I either lost interest in, had to many issues with, etc,.
 
 
 # Feel free to recreate any of these, and show me on Discord!
-* egamer3000#7747
+* _Ethan#7747
 
 ## What to expect
 * Skripts
